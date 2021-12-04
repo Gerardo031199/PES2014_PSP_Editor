@@ -1,4 +1,7 @@
 import zlib
+from tkinter import filedialog
+from tkinter import *
+from tkinter import ttk
 
 def bytes_to_int(b):
     return int.from_bytes(b, byteorder='little')
@@ -13,8 +16,10 @@ def file_read(file):
     '''
     Gets a file and return a byte array with his content
     '''
+    global file_name
     with open(file, 'rb') as f:
         file_contents  = bytearray(f.read())
+        file_name = f.name
     return file_contents
 
 def is_comp_pes_text(header):
@@ -85,6 +90,23 @@ def decompress(file):
                 end_offset = data_size
             file_data = data[offset : end_offset]
             # Se pasa lo que seleccionamos sin el encabezado
-            with open(f'subbin {i}.bin','wb') as s: s.write(unzlib_it(file_data[32:]))
+            with open(file_name+f'.unZlib_{i}','wb') as s: s.write(unzlib_it(file_data[32:]))
 
-decompress('./input/0TEXT/ID00051.bin')
+#decompress('./input/0TEXT/ID00051.bin')
+
+def open_filenames():
+    file= filedialog.askopenfilenames(title = "Seleccione archivo", filetypes = ([("all files","*.*"),("bin files","*.bin")]))
+    for i in file:
+        decompress(i)
+
+root = Tk()
+root.resizable(False, False)
+root.title("Zlib Decompress - Macro Processing")
+
+labelframe1 = ttk.LabelFrame(root, text="Decompress")
+labelframe1.grid(column=0, row=0, padx=10, pady=10)
+
+btn1 = ttk.Button(labelframe1,text="Open Files", command=open_filenames)
+btn1.grid(column=0, row=0, padx=27, pady=10)
+
+root.mainloop()
